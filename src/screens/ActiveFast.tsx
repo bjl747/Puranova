@@ -11,9 +11,13 @@ import { StageTimeline } from '../components/StageTimeline';
 import { ScheduleList } from '../components/ScheduleList';
 import { heroModeForStage } from '../components/stageVisual';
 import { Button, Card, Pill } from '../components/ui/ui';
+import { useNotificationPermission } from '../notify/notifications';
+import { Splash } from '../components/Splash';
 import { fmtCountdown, fmtDuration, HOUR } from '../core/time';
 import type { ScheduleEvent } from '../core/types';
 import './ActiveFast.css';
+
+const NOTIF_PROMPT_DISMISSED = 'puranova:notif-prompt-dismissed';
 
 function sameDay(a: number, b: number): boolean {
   const da = new Date(a);
@@ -46,12 +50,19 @@ export function ActiveFast() {
   const [showAll, setShowAll] = useState(false);
   const [menu, setMenu] = useState(false);
 
+  const { permission, request, supported } = useNotificationPermission();
+  const [notifDismissed, setNotifDismissed] = useState(
+    () => localStorage.getItem(NOTIF_PROMPT_DISMISSED) === '1',
+  );
+  const showNotifPrompt =
+    supported && permission === 'default' && !notifDismissed;
+  const dismissNotif = () => {
+    localStorage.setItem(NOTIF_PROMPT_DISMISSED, '1');
+    setNotifDismissed(true);
+  };
+
   if (!fast || fast.id !== id) {
-    return (
-      <div className="center-screen">
-        <p className="muted">Loading your fast…</p>
-      </div>
-    );
+    return <Splash label="Loading your fast…" />;
   }
 
   const durationHours = (fast.plannedEndAt - fast.startAt) / HOUR;
@@ -128,7 +139,14 @@ export function ActiveFast() {
       <div className="active-fast__ring glass-card">
         <CountdownRing progress={progress?.overallPct ?? 0} size={280} color={color}>
           <div className="ring-label muted">{finished ? 'goal reached' : 'remaining'}</div>
-          <div className="ring-time tnum">{fmtCountdown(remainingMs)}</div>
+          <div
+            className="ring-time tnum"
+            role="timer"
+            aria-live="off"
+            aria-label={`${fmtDuration(remainingMs)} remaining`}
+          >
+            {fmtCountdown(remainingMs)}
+          </div>
           <div className="ring-elapsed tnum muted">
             {fmtDuration(now - fast.startAt)} elapsed
           </div>
@@ -161,6 +179,38 @@ export function ActiveFast() {
       <div className="timeline-wrap">
         <StageTimeline durationHours={durationHours} elapsedHours={elapsedHours} />
       </div>
+
+      {showNotifPrompt && (
+        <Card className="notif-prompt">
+          <div className="notif-prompt__body">
+            <span className="notif-prompt__icon" aria-hidden="true">🔔</span>
+            <div>
+              <strong>Stay on schedule</strong>
+              <p className="muted">
+                Get nudged for cups, electrolytes, and each stage transition.
+              </p>
+            </div>
+          </div>
+          <div className="notif-prompt__actions">
+            <Button
+              variant="ghost"
+              onClick={async () => {
+                await request();
+                dismissNotif();
+              }}
+            >
+              Enable reminders
+            </Button>
+            <button
+              className="notif-prompt__dismiss"
+              onClick={dismissNotif}
+              aria-label="Dismiss reminder prompt"
+            >
+              Not now
+            </button>
+          </div>
+        </Card>
+      )}
 
       {finished && (
         <Card className="refeed-banner" onClick={startRefeed}>

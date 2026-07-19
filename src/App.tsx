@@ -13,6 +13,7 @@ import { Achievements } from './screens/Achievements';
 import { Profile } from './screens/Profile';
 import { Learn } from './screens/Learn';
 import { NotificationHost } from './notify/NotificationHost';
+import { Splash } from './components/Splash';
 
 export function App() {
   const { user, loading } = useAuth();
@@ -82,12 +83,5 @@ function SignedInApp() {
 }
 
 function SplashScreen() {
-  return (
-    <div className="center-screen">
-      <div className="splash-mark" />
-      <p className="muted" style={{ marginTop: 16 }}>
-        Puranova
-      </p>
-    </div>
-  );
+  return <Splash label="Puranova" />;
 }

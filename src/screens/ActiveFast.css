@@ -20,8 +20,8 @@
   gap: var(--sp-3);
 }
 .icon-btn {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: var(--surface-2);
   border: 1px solid var(--border);
@@ -131,4 +131,34 @@
 }
 .timetravel {
   border-style: dashed;
+}
+.notif-prompt {
+  border-color: rgba(63, 242, 224, 0.28);
+}
+.notif-prompt__body {
+  display: flex;
+  gap: var(--sp-3);
+  align-items: flex-start;
+}
+.notif-prompt__icon {
+  font-size: 22px;
+}
+.notif-prompt__body strong {
+  font-size: 15px;
+}
+.notif-prompt__body p {
+  font-size: 13px;
+  margin-top: 2px;
+}
+.notif-prompt__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-top: var(--sp-3);
+}
+.notif-prompt__dismiss {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-faint);
+  padding: 8px;
 }

@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { useProfile } from '../hooks/useProfile';
 import { useNow } from '../hooks/useNow';
 import { useRepo } from '../data/repo';
@@ -31,6 +31,13 @@ export function FastSetup() {
   const [endAt, setEndAt] = useState(now + 72 * HOUR);
   const [creating, setCreating] = useState(false);
 
+  // Guard: if a fast is already running, don't let a second one be created.
+  const [activeId, setActiveId] = useState<string | null | undefined>(undefined);
+  useEffect(() => {
+    const unsub = repo.watchActiveFast((f) => setActiveId(f?.id ?? null));
+    return unsub;
+  }, [repo]);
+
   const effectiveEnd = custom ? endAt : startAt + durationH * HOUR;
   const effectiveDurationH = Math.max(0, (effectiveEnd - startAt) / HOUR);
 
@@ -51,6 +58,9 @@ export function FastSetup() {
 
   const supplies = draftFast ? supplyCount(draftFast) : null;
   const stages = stagesForFast(effectiveDurationH);
+
+  // All hooks are above this line — safe to short-circuit render now.
+  if (activeId) return <Navigate to={`/fast/${activeId}`} replace />;
 
   const begin = async () => {
     if (!profile || !draftFast) return;

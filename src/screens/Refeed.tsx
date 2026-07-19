@@ -5,6 +5,8 @@ import { useRepo } from '../data/repo';
 import { CellularHero } from '../components/CellularHero';
 import { CountdownRing } from '../components/CountdownRing';
 import { Button, Card } from '../components/ui/ui';
+import { Splash } from '../components/Splash';
+import { Celebration } from '../components/Celebration';
 import {
   refeedSteps,
   startRefeedLock,
@@ -28,11 +30,7 @@ export function Refeed() {
   }, [repo, id]);
 
   if (!fast) {
-    return (
-      <div className="center-screen">
-        <p className="muted">Loading…</p>
-      </div>
-    );
+    return <Splash label="Loading…" />;
   }
 
   const steps = refeedSteps(fast.refeed, now);
@@ -64,6 +62,7 @@ export function Refeed() {
     const hours = ((fast.actualEndAt ?? fast.plannedEndAt) - fast.startAt) / 3600_000;
     return (
       <div className="refeed refeed--complete fade-up">
+        <Celebration />
         <div className="refeed__celebrate">
           <CellularHero mode="regen" hex="#4dff9e" />
         </div>
