@@ -1,5 +1,7 @@
 # Puranova
 
+**Live:** https://puranova.web.app
+
 A mobile-first water-fasting companion with a futuristic, cellular-regeneration
 aesthetic. Puranova guides you through a fast — 24, 48, 72 hours, or custom —
 with a live metabolic-stage countdown, a hydration and electrolyte schedule
