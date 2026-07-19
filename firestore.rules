@@ -1,0 +1,16 @@
+rules_version = '2';
+
+// Puranova — every document lives under the owning user's tree. A signed-in
+// user can read and write only their own data; no cross-user access exists.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+
+      // Fasts, check-ins, and achievements nested under the user.
+      match /{document=**} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
+    }
+  }
+}

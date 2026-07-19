@@ -35,6 +35,8 @@ export default defineConfig({
         navigateFallback: '/index.html',
         // Never precache the Firebase SDK's dynamic endpoints.
         navigateFallbackDenylist: [/^\/__/],
+        // Handle taps on reminder notifications.
+        importScripts: ['/sw-notification.js'],
       },
       devOptions: {
         enabled: false,
