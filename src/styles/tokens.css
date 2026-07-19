@@ -1,0 +1,76 @@
+:root {
+  /* ---- Base surfaces (deep-space cellular dark) ---- */
+  --bg-0: #050b14;
+  --bg-1: #0a1420;
+  --bg-2: #0f1c2b;
+  --surface: rgba(255, 255, 255, 0.04);
+  --surface-2: rgba(255, 255, 255, 0.07);
+  --surface-strong: rgba(255, 255, 255, 0.1);
+  --border: rgba(255, 255, 255, 0.09);
+  --border-strong: rgba(255, 255, 255, 0.16);
+
+  /* ---- Text ---- */
+  --text: #e8f4f8;
+  --text-dim: #9db2c4;
+  --text-faint: #5f7688;
+
+  /* ---- Bioluminescent accents ---- */
+  --accent-cyan: #3ff2e0;
+  --accent-violet: #8b7bff;
+  --accent-bio: #4dff9e;
+  --accent-amber: #ffb547;
+  --accent-rose: #ff6b9d;
+  --accent-coffee: #b98a5a;
+
+  /* ---- Stage hues (map to core/stages.ts color tokens) ---- */
+  --stage-fed: #6ea8ff;
+  --stage-early: #58c4d6;
+  --stage-glycogen: #3ff2e0;
+  --stage-switch: #45e0a8;
+  --stage-ketosis: #4dff9e;
+  --stage-autophagy: #8b7bff;
+  --stage-deep: #b07bff;
+  --stage-regen: #ff6b9d;
+  --stage-extended: #ffb547;
+
+  /* ---- Semantic ---- */
+  --good: #4dff9e;
+  --warn: #ffb547;
+  --danger: #ff6b6b;
+
+  /* ---- Radii ---- */
+  --r-sm: 10px;
+  --r-md: 16px;
+  --r-lg: 22px;
+  --r-xl: 28px;
+  --r-pill: 999px;
+
+  /* ---- Spacing scale ---- */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --sp-7: 48px;
+
+  /* ---- Glow shadows ---- */
+  --glow-cyan: 0 0 24px rgba(63, 242, 224, 0.35);
+  --glow-violet: 0 0 24px rgba(139, 123, 255, 0.35);
+  --glow-bio: 0 0 24px rgba(77, 255, 158, 0.35);
+  --shadow-card: 0 8px 30px rgba(0, 0, 0, 0.4);
+  --shadow-lift: 0 16px 50px rgba(0, 0, 0, 0.55);
+
+  /* ---- Type ---- */
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    Helvetica, Arial, sans-serif;
+  --font-mono: 'SF Mono', 'JetBrains Mono', ui-monospace, 'Menlo', monospace;
+
+  /* ---- Layout ---- */
+  --tabbar-h: 68px;
+  --content-max: 520px;
+
+  /* Safe-area helpers (notches / home indicators) */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}

@@ -1,0 +1,229 @@
+@import './tokens.css';
+
+/* ---------- Reset ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font);
+  background: var(--bg-0);
+  color: var(--text);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overscroll-behavior-y: none;
+  /* Ambient cellular glow behind everything */
+  background-image:
+    radial-gradient(1200px 800px at 15% -10%, rgba(63, 242, 224, 0.08), transparent 60%),
+    radial-gradient(1000px 700px at 110% 10%, rgba(139, 123, 255, 0.09), transparent 55%),
+    radial-gradient(900px 900px at 50% 120%, rgba(77, 255, 158, 0.06), transparent 55%);
+  background-attachment: fixed;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+a {
+  color: var(--accent-cyan);
+  text-decoration: none;
+}
+
+ul {
+  list-style: none;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* Tabular numerals for all timers/counters */
+.tnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}
+
+/* ---------- App layout ---------- */
+.app-shell {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-main {
+  flex: 1;
+  width: 100%;
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: calc(var(--safe-top) + var(--sp-4)) var(--sp-4)
+    calc(var(--tabbar-h) + var(--safe-bottom) + var(--sp-5));
+  position: relative;
+}
+
+.app-main--full {
+  padding: 0;
+  max-width: none;
+}
+
+/* ---------- Reusable primitives ---------- */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: var(--sp-5);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: var(--shadow-card);
+}
+
+.glass {
+  background: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.07),
+    rgba(255, 255, 255, 0.02)
+  );
+  border: 1px solid var(--border);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.spread {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+}
+
+.muted {
+  color: var(--text-dim);
+}
+
+.faint {
+  color: var(--text-faint);
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-faint);
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 6px 12px;
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.center-screen {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-5);
+  text-align: center;
+  position: relative;
+}
+
+/* ---------- Focus visibility ---------- */
+:focus-visible {
+  outline: 2px solid var(--accent-cyan);
+  outline-offset: 2px;
+}
+
+/* ---------- Scrollbars ---------- */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--surface-strong);
+  border-radius: 8px;
+}
+
+/* ---------- Animations ---------- */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulseGlow {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.fade-up {
+  animation: fadeUp 0.4s ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
