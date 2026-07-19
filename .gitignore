@@ -22,3 +22,18 @@ npm-debug.log*
 .firebase
 firebase-debug.log
 .firebaserc
+
+# Secrets — NEVER commit service account keys or credential files
+*serviceAccount*.json
+*service-account*.json
+*-adminsdk-*.json
+serviceAccountKey.json
+**/firebase-adminsdk*.json
+firebase-config.js
+google-services.json
+GoogleService-Info.plist
+*.pem
+*.key
+
+# TS incremental build cache
+*.tsbuildinfo

@@ -13,12 +13,14 @@ import {
 } from 'react';
 import {
   onAuthStateChanged,
+  getRedirectResult,
   signInWithPopup,
   signInWithRedirect,
   signOut as fbSignOut,
   type User,
 } from 'firebase/auth';
 import { auth, googleProvider, db, firebaseAvailable } from '../data/firebase';
+import { isMobileOrSafari, isStandalonePWA } from '../data/browserEnv';
 import { RepoContext, type Repo } from '../data/repo';
 import { LocalRepo } from '../data/localRepo';
 import { FirestoreRepo } from '../data/firestoreRepo';
@@ -68,6 +70,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
       return;
     }
+    // Complete any redirect-based sign-in (mobile/Safari/in-app flows).
+    getRedirectResult(auth).catch(() => {
+      /* no pending redirect, or it failed — onAuthStateChanged still governs */
+    });
     const unsub = onAuthStateChanged(auth, (u: User | null) => {
       setUser(
         u
@@ -86,15 +92,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signInWithGoogle = async () => {
     if (!auth || !googleProvider) throw new Error('Firebase not configured');
+
+    // On mobile, Safari, and installed PWAs, popups are unreliable or blocked —
+    // go straight to the full-page redirect flow. Desktop browsers get the
+    // nicer popup, with a redirect fallback if it's blocked.
+    if (isMobileOrSafari() || isStandalonePWA()) {
+      await signInWithRedirect(auth, googleProvider);
+      return;
+    }
     try {
       await signInWithPopup(auth, googleProvider);
     } catch (err: unknown) {
-      // Popup blocked / closed → fall back to full-page redirect.
       const code = (err as { code?: string })?.code ?? '';
       if (
         code.includes('popup-blocked') ||
         code.includes('cancelled-popup-request') ||
-        code.includes('popup-closed-by-user')
+        code.includes('popup-closed-by-user') ||
+        code.includes('operation-not-supported')
       ) {
         await signInWithRedirect(auth, googleProvider);
       } else {

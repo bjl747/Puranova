@@ -2,12 +2,25 @@ import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { CellularHero } from '../components/CellularHero';
 import { Button } from '../components/ui/ui';
+import { isInAppBrowser, inAppBrowserName } from '../data/browserEnv';
 import './Welcome.css';
 
 export function Welcome() {
   const { firebaseAvailable, signInWithGoogle, startDemo } = useAuth();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+  const inApp = isInAppBrowser();
+
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setError('Couldn’t copy — long-press the address bar to copy the link.');
+    }
+  };
 
   const handleGoogle = async () => {
     setBusy(true);
@@ -37,7 +50,19 @@ export function Welcome() {
         </p>
 
         <div className="welcome__actions">
-          {firebaseAvailable ? (
+          {inApp ? (
+            <div className="welcome__inapp">
+              <strong>Open in your browser to sign in</strong>
+              <p>
+                Google sign-in doesn’t work inside {inAppBrowserName()}. Tap the
+                menu (•••) and choose <b>Open in Safari</b> or <b>Open in
+                Chrome</b> — or copy the link and paste it there.
+              </p>
+              <Button variant="ghost" full onClick={copyLink}>
+                {copied ? 'Link copied ✓' : 'Copy link'}
+              </Button>
+            </div>
+          ) : firebaseAvailable ? (
             <Button full glow onClick={handleGoogle} disabled={busy}>
               <GoogleGlyph />
               {busy ? 'Connecting…' : 'Continue with Google'}
