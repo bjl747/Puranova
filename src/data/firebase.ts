@@ -13,13 +13,31 @@ import {
   type Firestore,
 } from 'firebase/firestore';
 
+// Public Firebase web config for project "puranova". These values are NOT
+// secret — they ship in every client bundle by design, and access is enforced
+// by Firestore security rules and Auth settings, not by hiding them. They act
+// as a committed fallback so builds are always connected; env vars (.env.local)
+// override them for anyone pointing the app at a different Firebase project.
+const DEFAULT_CONFIG = {
+  apiKey: 'AIzaSyDwIPGzQbHBo3NAW9upAs5t_DgFKaD_5S8',
+  authDomain: 'puranova.firebaseapp.com',
+  projectId: 'puranova',
+  storageBucket: 'puranova.firebasestorage.app',
+  messagingSenderId: '458136042300',
+  appId: '1:458136042300:web:f9107673e72f1217d0bc39',
+};
+
 const config = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || DEFAULT_CONFIG.apiKey,
+  authDomain:
+    import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || DEFAULT_CONFIG.authDomain,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || DEFAULT_CONFIG.projectId,
+  storageBucket:
+    import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || DEFAULT_CONFIG.storageBucket,
+  messagingSenderId:
+    import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID ||
+    DEFAULT_CONFIG.messagingSenderId,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || DEFAULT_CONFIG.appId,
 };
 
 export const firebaseAvailable = Boolean(
