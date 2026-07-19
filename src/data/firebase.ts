@@ -20,7 +20,12 @@ import {
 // override them for anyone pointing the app at a different Firebase project.
 const DEFAULT_CONFIG = {
   apiKey: 'AIzaSyDwIPGzQbHBo3NAW9upAs5t_DgFKaD_5S8',
-  authDomain: 'puranova.firebaseapp.com',
+  // Use the Hosting domain (same origin the app is served from) so the Google
+  // OAuth handshake is first-party. Pointing authDomain at the default
+  // *.firebaseapp.com makes the redirect flow rely on cross-domain storage,
+  // which Safari/iOS (and increasingly Chrome) block — causing sign-in to
+  // "loop" back to Welcome. Firebase Hosting serves the /__/auth/ handler here.
+  authDomain: 'puranova.web.app',
   projectId: 'puranova',
   storageBucket: 'puranova.firebasestorage.app',
   messagingSenderId: '458136042300',
