@@ -1,0 +1,86 @@
+.schedule-list {
+  display: flex;
+  flex-direction: column;
+}
+.sched {
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: 14px 4px;
+  border-bottom: 1px solid var(--border);
+  transition: opacity 0.2s ease;
+}
+.sched--done {
+  opacity: 0.5;
+}
+.sched--info {
+  opacity: 0.8;
+}
+.sched__check {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid var(--border-strong);
+  color: #04231c;
+  font-size: 14px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+.sched__check--on {
+  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-bio));
+  border-color: transparent;
+  box-shadow: var(--glow-cyan);
+}
+.sched--overdue .sched__check {
+  border-color: var(--accent-amber);
+  box-shadow: 0 0 8px rgba(255, 181, 71, 0.4);
+}
+.sched__marker-dot {
+  width: 10px;
+  height: 10px;
+  margin: 0 8px;
+  border-radius: 50%;
+  background: var(--accent-violet);
+  box-shadow: var(--glow-violet);
+}
+.sched__body {
+  min-width: 0;
+}
+.sched__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: space-between;
+}
+.sched__head strong {
+  font-size: 15px;
+  font-weight: 600;
+}
+.sched__glyphs {
+  display: flex;
+  gap: 3px;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+.sched__detail {
+  font-size: 12.5px;
+  margin-top: 2px;
+  line-height: 1.4;
+}
+.sched__time-btn {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-dim);
+  padding: 6px 8px;
+  border-radius: var(--r-sm);
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+.sched__time-btn:not(:disabled):hover {
+  border-color: var(--border);
+  background: var(--surface-2);
+}

@@ -1,0 +1,83 @@
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+.dashboard__greeting h1 {
+  font-size: 28px;
+  margin-top: 2px;
+}
+.active-card {
+  position: relative;
+  overflow: hidden;
+  padding-top: var(--sp-6);
+}
+.active-card__hero {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.5;
+  -webkit-mask-image: radial-gradient(circle at 50% 40%, #000, transparent 75%);
+  mask-image: radial-gradient(circle at 50% 40%, #000, transparent 75%);
+}
+.active-card__ring {
+  position: relative;
+  z-index: 1;
+}
+.ring-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.ring-time {
+  font-size: 34px;
+  font-weight: 800;
+  margin: 4px 0 10px;
+  letter-spacing: -0.01em;
+}
+.active-card__meta {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--sp-4);
+  color: var(--text-dim);
+  font-size: 13px;
+  font-weight: 600;
+}
+.dash-next {
+  display: flex;
+  gap: var(--sp-3);
+  padding: 6px 0;
+  font-size: 14.5px;
+}
+.dash-next__time {
+  color: var(--accent-cyan);
+  font-weight: 700;
+  min-width: 66px;
+}
+.idle-hero {
+  position: relative;
+  height: 240px;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+.idle-hero__overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  padding: var(--sp-5);
+  background: linear-gradient(to top, rgba(5, 11, 20, 0.85), transparent 60%);
+}
+.idle-hero__overlay p {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text);
+}
+.stat-row {
+  display: flex;
+  gap: var(--sp-3);
+}

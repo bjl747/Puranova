@@ -1,0 +1,64 @@
+.fast-setup header h1 {
+  font-size: 26px;
+  margin-top: 4px;
+}
+.setup-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: var(--sp-4);
+}
+.setup-field > span {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+.text-input--readonly {
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+}
+.setup-duration {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--accent-cyan);
+  margin-top: 2px;
+}
+.setup-supplies {
+  text-align: right;
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.7;
+}
+.setup-supplies strong {
+  color: var(--text);
+}
+.setup-stages {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.setup-stage {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+.setup-stage:last-child {
+  border-bottom: none;
+}
+.setup-stage__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.setup-stage__name {
+  flex: 1;
+  font-size: 14.5px;
+  font-weight: 600;
+}
+.setup-stage__hr {
+  font-size: 12px;
+}

@@ -1,0 +1,134 @@
+.active-fast {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+.active-fast__bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.4;
+  -webkit-mask-image: radial-gradient(circle at 50% 30%, #000, transparent 70%);
+  mask-image: radial-gradient(circle at 50% 30%, #000, transparent 70%);
+  pointer-events: none;
+}
+.active-fast__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+}
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  font-size: 22px;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+.active-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--sp-2);
+}
+.active-menu button {
+  text-align: left;
+  padding: 14px 16px;
+  border-radius: var(--r-sm);
+  font-size: 15px;
+  font-weight: 600;
+}
+.active-menu button:hover {
+  background: var(--surface-2);
+}
+.active-menu button.danger {
+  color: #ffb0b0;
+}
+.active-fast__ring {
+  padding: var(--sp-5) 0 var(--sp-4);
+  border-radius: var(--r-lg);
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.01));
+  border: 1px solid var(--border);
+  backdrop-filter: blur(18px);
+}
+.ring-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+.ring-time {
+  font-size: 42px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin: 4px 0;
+}
+.ring-elapsed {
+  font-size: 13px;
+}
+.stage-card h2 {
+  font-size: 21px;
+  margin-top: 2px;
+}
+.stage-card__next {
+  text-align: right;
+  font-size: 12px;
+}
+.stage-card__next-h {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text);
+}
+.stage-card__body {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 0.3s ease;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--text-dim);
+}
+.stage-card__body.open {
+  max-height: 260px;
+  opacity: 1;
+  margin-top: var(--sp-3);
+}
+.stage-card__hint {
+  font-size: 12px;
+  margin-top: 10px;
+}
+.timeline-wrap {
+  padding: 0 4px;
+}
+.refeed-banner {
+  border-color: rgba(77, 255, 158, 0.4);
+  background: linear-gradient(135deg, rgba(77, 255, 158, 0.12), rgba(63, 242, 224, 0.06));
+  box-shadow: var(--glow-bio);
+}
+.refeed-banner strong {
+  display: block;
+  font-size: 18px;
+  margin: 2px 0;
+}
+.catchup {
+  border-color: rgba(255, 181, 71, 0.3);
+}
+.link-btn {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent-cyan);
+}
+.timetravel__btns {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.timetravel {
+  border-style: dashed;
+}
