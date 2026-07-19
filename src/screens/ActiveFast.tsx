@@ -13,6 +13,8 @@ import { heroModeForStage } from '../components/stageVisual';
 import { Button, Card, Pill } from '../components/ui/ui';
 import { useNotificationPermission } from '../notify/notifications';
 import { Splash } from '../components/Splash';
+import { useSpeech } from '../hooks/useSpeech';
+import { buildNarration } from '../core/narration';
 import { fmtCountdown, fmtDuration, HOUR } from '../core/time';
 import type { ScheduleEvent } from '../core/types';
 import './ActiveFast.css';
@@ -50,6 +52,8 @@ export function ActiveFast() {
   const [showAll, setShowAll] = useState(false);
   const [menu, setMenu] = useState(false);
 
+  const { speak, stop: stopSpeech, speaking, supported: speechSupported } =
+    useSpeech();
   const { permission, request, supported } = useNotificationPermission();
   const [notifDismissed, setNotifDismissed] = useState(
     () => localStorage.getItem(NOTIF_PROMPT_DISMISSED) === '1',
@@ -175,6 +179,29 @@ export function ActiveFast() {
           {expanded ? 'Tap to collapse' : 'Tap for what’s happening in your body'}
         </div>
       </Card>
+
+      {speechSupported && progress && (
+        <button
+          className={`voice-btn ${speaking ? 'voice-btn--on' : ''}`}
+          onClick={() =>
+            speaking ? stopSpeech() : speak(buildNarration(progress))
+          }
+          aria-pressed={speaking}
+          style={{ borderColor: speaking ? color : undefined }}
+        >
+          <span className="voice-btn__icon" aria-hidden="true">
+            {speaking ? '❚❚' : '►'}
+          </span>
+          <span className="voice-btn__label">
+            {speaking ? 'Stop narration' : 'Hear where you are'}
+          </span>
+          {speaking && (
+            <span className="voice-btn__wave" aria-hidden="true">
+              <i /><i /><i /><i />
+            </span>
+          )}
+        </button>
+      )}
 
       <div className="timeline-wrap">
         <StageTimeline durationHours={durationHours} elapsedHours={elapsedHours} />

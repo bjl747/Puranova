@@ -90,6 +90,7 @@ export interface Stage {
   name: string;
   tagline: string;
   body: string;
+  feeling: string; // what the user commonly feels in this stage (for narration)
   colorVar: string; // CSS var name, e.g. "--stage-ketosis"
   hex: string; // resolved hex for canvas use
 }
