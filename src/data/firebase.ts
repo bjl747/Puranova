@@ -20,12 +20,12 @@ import {
 // override them for anyone pointing the app at a different Firebase project.
 const DEFAULT_CONFIG = {
   apiKey: 'AIzaSyDwIPGzQbHBo3NAW9upAs5t_DgFKaD_5S8',
-  // Use the Hosting domain (same origin the app is served from) so the Google
-  // OAuth handshake is first-party. Pointing authDomain at the default
-  // *.firebaseapp.com makes the redirect flow rely on cross-domain storage,
-  // which Safari/iOS (and increasingly Chrome) block — causing sign-in to
-  // "loop" back to Welcome. Firebase Hosting serves the /__/auth/ handler here.
-  authDomain: 'puranova.web.app',
+  // Keep the default Firebase auth domain: its /__/auth/handler redirect URI is
+  // already registered in the project's OAuth client (using the Hosting domain
+  // instead causes redirect_uri_mismatch). We avoid the cross-domain storage
+  // "loop" by signing in with a POPUP (see useAuth), which returns the result
+  // via postMessage instead of a full-page redirect.
+  authDomain: 'puranova.firebaseapp.com',
   projectId: 'puranova',
   storageBucket: 'puranova.firebasestorage.app',
   messagingSenderId: '458136042300',
@@ -58,6 +58,9 @@ if (firebaseAvailable) {
   app = initializeApp(config);
   auth = getAuth(app);
   googleProvider = new GoogleAuthProvider();
+  // Always show the account chooser instead of silently using the one Google
+  // account already signed into the browser.
+  googleProvider.setCustomParameters({ prompt: 'select_account' });
   // Offline persistence so timers/schedules survive reloads and flaky networks.
   try {
     db = initializeFirestore(app, {
