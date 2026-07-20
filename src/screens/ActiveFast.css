@@ -206,6 +206,42 @@
   line-height: 1.5;
   margin-top: var(--sp-3);
 }
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  margin: 4px 0 8px;
+}
+.chart-legend__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+.chart-legend__swatch {
+  display: inline-block;
+  width: 18px;
+  height: 0;
+  border-radius: 2px;
+}
+.chart-legend__swatch--actual {
+  border-top: 3px solid #4dff9e;
+  box-shadow: 0 0 6px rgba(77, 255, 158, 0.6);
+}
+.chart-legend__swatch--proj {
+  border-top: 2px dashed #3ff2e0;
+}
+.chart-legend__swatch--band {
+  height: 10px;
+  background: linear-gradient(
+    180deg,
+    rgba(63, 242, 224, 0.16),
+    rgba(139, 123, 255, 0.1)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
 .refeed-banner {
   border-color: rgba(77, 255, 158, 0.4);
   background: linear-gradient(135deg, rgba(77, 255, 158, 0.12), rgba(63, 242, 224, 0.06));

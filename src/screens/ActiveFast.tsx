@@ -235,6 +235,21 @@ export function ActiveFast() {
           </Button>
         </div>
 
+        <div className="chart-legend">
+          <span className="chart-legend__item">
+            <i className="chart-legend__swatch chart-legend__swatch--actual" />
+            Your weigh-ins
+          </span>
+          <span className="chart-legend__item">
+            <i className="chart-legend__swatch chart-legend__swatch--proj" />
+            Projected
+          </span>
+          <span className="chart-legend__item">
+            <i className="chart-legend__swatch chart-legend__swatch--band" />
+            Normal range
+          </span>
+        </div>
+
         <WeightChart
           startWeightLbs={fast.weightAtStart}
           fastStartAt={fast.startAt}
@@ -266,7 +281,7 @@ export function ActiveFast() {
                 <label>by the end</label>
               </div>
               <div>
-                <span className="tnum" style={{ color: 'var(--accent-bio)' }}>
+                <span className="tnum" style={{ color: 'var(--accent-violet)' }}>
                   −{endProj.keepsOffLbs.toFixed(1)}
                 </span>
                 <label>stays off (fat)</label>
@@ -275,9 +290,9 @@ export function ActiveFast() {
           );
         })()}
         <p className="weight-footnote muted">
-          Dashed line = research-based projection for your start weight on this
-          regimen (band shows the normal range). Early loss is mostly glycogen
-          water — the green “stays off” number is the fat.
+          The projection is research-based for your start weight on this
+          regimen. Early scale loss is mostly glycogen water that returns after
+          refeeding — the violet “stays off” number is the true fat loss.
         </p>
       </Card>
 
