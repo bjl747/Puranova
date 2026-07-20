@@ -4,6 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useRepo } from '../data/repo';
 import { useProfile } from '../hooks/useProfile';
 import { useNow } from '../hooks/useNow';
@@ -39,7 +40,10 @@ export function WeighInSheet({ fastId, onClose, onSaved }: Props) {
     onClose();
   };
 
-  return (
+  // Portal to <body>: ancestors with backdrop-filter/transform (our glass
+  // cards) would otherwise capture position:fixed and pin the sheet to the
+  // card instead of the viewport.
+  return createPortal(
     <div className="weighin-overlay" onClick={onClose}>
       <div
         className="weighin-sheet glass"
@@ -70,6 +74,7 @@ export function WeighInSheet({ fastId, onClose, onSaved }: Props) {
           </Button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
