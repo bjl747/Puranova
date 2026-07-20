@@ -171,6 +171,41 @@
     height: 15px;
   }
 }
+.weight-now {
+  font-size: 26px;
+  font-weight: 800;
+  margin-top: 2px;
+}
+.weight-now .muted {
+  font-size: 14px;
+  font-weight: 600;
+}
+.weight-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--sp-2);
+  margin-top: var(--sp-3);
+  text-align: center;
+}
+.weight-stats span {
+  display: block;
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--accent-cyan);
+}
+.weight-stats label {
+  display: block;
+  font-size: 10px;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-top: 2px;
+}
+.weight-footnote {
+  font-size: 11.5px;
+  line-height: 1.5;
+  margin-top: var(--sp-3);
+}
 .refeed-banner {
   border-color: rgba(77, 255, 158, 0.4);
   background: linear-gradient(135deg, rgba(77, 255, 158, 0.12), rgba(63, 242, 224, 0.06));

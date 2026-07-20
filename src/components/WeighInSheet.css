@@ -1,0 +1,58 @@
+.weighin-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(3, 7, 12, 0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.weighin-sheet {
+  width: 100%;
+  max-width: var(--content-max);
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+  padding: var(--sp-4) var(--sp-5)
+    calc(var(--safe-bottom) + var(--sp-6));
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  animation: sheetUp 0.25s ease both;
+}
+@keyframes sheetUp {
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+.weighin-sheet__grab {
+  width: 42px;
+  height: 4px;
+  border-radius: var(--r-pill);
+  background: var(--border-strong);
+  margin: 0 auto var(--sp-2);
+}
+.weighin-sheet h2 {
+  font-size: 22px;
+}
+.weighin-sheet .number-field {
+  font-size: 24px;
+}
+.weighin-sheet .number-field__input {
+  font-size: 28px;
+  font-weight: 800;
+}
+.weighin-sheet__actions {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  margin-top: var(--sp-2);
+}
+.weighin-sheet__actions .btn:last-child {
+  flex: 1;
+}

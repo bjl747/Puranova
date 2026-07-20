@@ -20,6 +20,7 @@ import type {
   Fast,
   CheckIn,
   UnlockedAchievement,
+  WeighIn,
 } from '../core/types';
 
 export class FirestoreRepo implements Repo {
@@ -121,5 +122,26 @@ export class FirestoreRepo implements Repo {
     const out: Record<string, UnlockedAchievement> = {};
     snap.docs.forEach((d) => (out[d.id] = d.data() as UnlockedAchievement));
     return out;
+  }
+
+  private weighInsCol() {
+    return collection(this.db, 'users', this.uid, 'weighins');
+  }
+
+  async addWeighIn(weighIn: WeighIn): Promise<void> {
+    await setDoc(doc(this.weighInsCol(), weighIn.id), weighIn);
+  }
+
+  async listWeighIns(): Promise<WeighIn[]> {
+    const snap = await getDocs(query(this.weighInsCol(), orderBy('at', 'asc')));
+    return snap.docs.map((d) => d.data() as WeighIn);
+  }
+
+  watchWeighIns(cb: (weighIns: WeighIn[]) => void): Unsubscribe {
+    return onSnapshot(
+      query(this.weighInsCol(), orderBy('at', 'asc')),
+      (snap) => cb(snap.docs.map((d) => d.data() as WeighIn)),
+      () => cb([]),
+    );
   }
 }

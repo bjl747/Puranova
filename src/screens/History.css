@@ -23,3 +23,19 @@
   font-size: 13px;
   font-weight: 600;
 }
+.weight-line {
+  font-size: 24px;
+  font-weight: 800;
+  margin-top: 2px;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.weight-line .muted {
+  font-size: 13px;
+  font-weight: 600;
+}
+.weight-delta {
+  font-size: 14px;
+  font-weight: 700;
+}

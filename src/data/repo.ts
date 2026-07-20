@@ -9,6 +9,7 @@ import type {
   Fast,
   CheckIn,
   UnlockedAchievement,
+  WeighIn,
 } from '../core/types';
 
 export type Unsubscribe = () => void;
@@ -30,6 +31,10 @@ export interface Repo {
 
   unlockAchievement(id: string, meta: UnlockedAchievement): Promise<void>;
   listAchievements(): Promise<Record<string, UnlockedAchievement>>;
+
+  addWeighIn(weighIn: WeighIn): Promise<void>;
+  listWeighIns(): Promise<WeighIn[]>;
+  watchWeighIns(cb: (weighIns: WeighIn[]) => void): Unsubscribe;
 }
 
 export const RepoContext = createContext<Repo | null>(null);

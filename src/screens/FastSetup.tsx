@@ -7,6 +7,7 @@ import { Button, Card, Chip } from '../components/ui/ui';
 import { DURATION_PRESETS } from '../core/defaults';
 import { stagesForFast } from '../core/stages';
 import { supplyCount } from '../core/schedule';
+import { projectionBreakdown } from '../core/projection';
 import { fmtDuration, HOUR } from '../core/time';
 import type { Fast } from '../core/types';
 import './FastSetup.css';
@@ -74,6 +75,13 @@ export function FastSetup() {
       lmntFlavor: profile.lmntFlavor,
       includeCoffee: profile.includeCoffee,
       rhythmSnapshot: profile.rhythm,
+    });
+    // Anchor the weight chart with a starting weigh-in.
+    await repo.addWeighIn({
+      id: `w_${startAt.toString(36)}_start`,
+      at: startAt,
+      weightLbs: profile.weightLbs,
+      fastId: id,
     });
     navigate(`/fast/${id}`, { replace: true });
   };
@@ -159,6 +167,18 @@ export function FastSetup() {
             <div>
               <strong className="tnum">{supplies?.magnesiumCapsules ?? 0}</strong> Mg capsules
             </div>
+            {profile && effectiveDurationH >= 4 && (
+              <div>
+                <strong className="tnum" style={{ color: 'var(--accent-bio)' }}>
+                  −
+                  {projectionBreakdown(
+                    profile.weightLbs,
+                    effectiveDurationH,
+                  ).totalLbs.toFixed(1)}
+                </strong>{' '}
+                lbs projected
+              </div>
+            )}
           </div>
         </div>
       </Card>

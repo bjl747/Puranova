@@ -9,6 +9,7 @@ import type {
   Fast,
   CheckIn,
   UnlockedAchievement,
+  WeighIn,
 } from '../core/types';
 
 function readJSON<T>(key: string, fallback: T): T {
@@ -28,6 +29,7 @@ export class LocalRepo implements Repo {
   private ns: string;
   private activeWatchers = new Set<(f: Fast | null) => void>();
   private checkInWatchers = new Map<string, Set<(c: CheckIn[]) => void>>();
+  private weighInWatchers = new Set<(w: WeighIn[]) => void>();
 
   constructor(uid: string) {
     this.ns = `puranova:${uid}`;
@@ -140,5 +142,29 @@ export class LocalRepo implements Repo {
       this.k('achievements'),
       {},
     );
+  }
+
+  private allWeighIns(): WeighIn[] {
+    return readJSON<WeighIn[]>(this.k('weighins'), []).sort(
+      (a, b) => a.at - b.at,
+    );
+  }
+
+  async addWeighIn(weighIn: WeighIn): Promise<void> {
+    const list = this.allWeighIns().filter((w) => w.id !== weighIn.id);
+    list.push(weighIn);
+    writeJSON(this.k('weighins'), list);
+    const sorted = this.allWeighIns();
+    this.weighInWatchers.forEach((cb) => cb(sorted));
+  }
+
+  async listWeighIns(): Promise<WeighIn[]> {
+    return this.allWeighIns();
+  }
+
+  watchWeighIns(cb: (weighIns: WeighIn[]) => void): Unsubscribe {
+    this.weighInWatchers.add(cb);
+    cb(this.allWeighIns());
+    return () => this.weighInWatchers.delete(cb);
   }
 }

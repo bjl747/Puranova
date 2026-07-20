@@ -111,6 +111,14 @@ export interface StageProgress {
   overallPct: number; // 0-1 through the whole planned fast
 }
 
+/** A scale reading the user logs at any time (fasting or not). */
+export interface WeighIn {
+  id: string;
+  at: number; // epoch ms
+  weightLbs: number;
+  fastId?: string; // set when logged during an active fast
+}
+
 export interface Achievement {
   id: string;
   name: string;

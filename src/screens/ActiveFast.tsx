@@ -15,8 +15,12 @@ import { useNotificationPermission } from '../notify/notifications';
 import { Splash } from '../components/Splash';
 import { useSpeech } from '../hooks/useSpeech';
 import { buildNarration } from '../core/narration';
+import { WeighInSheet } from '../components/WeighInSheet';
+import { WeightChart } from '../components/charts/WeightChart';
+import { projectionBreakdown } from '../core/projection';
 import { fmtCountdown, fmtDuration, HOUR } from '../core/time';
-import type { ScheduleEvent } from '../core/types';
+import type { ScheduleEvent, WeighIn } from '../core/types';
+import { useEffect } from 'react';
 import './ActiveFast.css';
 
 const NOTIF_PROMPT_DISMISSED = 'puranova:notif-prompt-dismissed';
@@ -51,6 +55,13 @@ export function ActiveFast() {
   const [expanded, setExpanded] = useState(false);
   const [showAll, setShowAll] = useState(false);
   const [menu, setMenu] = useState(false);
+  const [weighing, setWeighing] = useState(false);
+  const [weighIns, setWeighIns] = useState<WeighIn[]>([]);
+
+  useEffect(() => {
+    const unsub = repo.watchWeighIns(setWeighIns);
+    return unsub;
+  }, [repo]);
 
   const { speak, stop: stopSpeech, speaking, supported: speechSupported } =
     useSpeech();
@@ -207,6 +218,69 @@ export function ActiveFast() {
         <StageTimeline durationHours={durationHours} elapsedHours={elapsedHours} />
       </div>
 
+      <Card>
+        <div className="spread" style={{ marginBottom: 6 }}>
+          <div>
+            <div className="eyebrow">Weight journey</div>
+            <div className="weight-now tnum">
+              {(weighIns.length
+                ? weighIns[weighIns.length - 1].weightLbs
+                : fast.weightAtStart
+              ).toFixed(1)}{' '}
+              <span className="muted">lbs</span>
+            </div>
+          </div>
+          <Button variant="ghost" onClick={() => setWeighing(true)}>
+            ⚖️ Weigh in
+          </Button>
+        </div>
+
+        <WeightChart
+          startWeightLbs={fast.weightAtStart}
+          fastStartAt={fast.startAt}
+          durationHours={durationHours}
+          weighIns={weighIns}
+          nowMs={now}
+        />
+
+        {(() => {
+          const nowProj = projectionBreakdown(fast.weightAtStart, elapsedHours);
+          const endProj = projectionBreakdown(fast.weightAtStart, durationHours);
+          const nextMark = Math.min(
+            durationHours,
+            (Math.floor(elapsedHours / 4) + 1) * 4,
+          );
+          const next = projectionBreakdown(fast.weightAtStart, nextMark);
+          return (
+            <div className="weight-stats">
+              <div>
+                <span className="tnum">−{nowProj.totalLbs.toFixed(1)}</span>
+                <label>projected now</label>
+              </div>
+              <div>
+                <span className="tnum">−{next.totalLbs.toFixed(1)}</span>
+                <label>by hour {nextMark}</label>
+              </div>
+              <div>
+                <span className="tnum">−{endProj.totalLbs.toFixed(1)}</span>
+                <label>by the end</label>
+              </div>
+              <div>
+                <span className="tnum" style={{ color: 'var(--accent-bio)' }}>
+                  −{endProj.keepsOffLbs.toFixed(1)}
+                </span>
+                <label>stays off (fat)</label>
+              </div>
+            </div>
+          );
+        })()}
+        <p className="weight-footnote muted">
+          Dashed line = research-based projection for your start weight on this
+          regimen (band shows the normal range). Early loss is mostly glycogen
+          water — the green “stays off” number is the fat.
+        </p>
+      </Card>
+
       {showNotifPrompt && (
         <Card className="notif-prompt">
           <div className="notif-prompt__body">
@@ -282,6 +356,10 @@ export function ActiveFast() {
           editable
         />
       </Card>
+
+      {weighing && (
+        <WeighInSheet fastId={fast.id} onClose={() => setWeighing(false)} />
+      )}
 
       {isDemo && (
         <Card className="timetravel">
