@@ -78,4 +78,13 @@ describe('STAGES table integrity', () => {
     }
     expect(STAGES[STAGES.length - 1].endHour).toBe(Infinity);
   });
+
+  it('every stage has complete, non-empty expectation copy', () => {
+    for (const s of STAGES) {
+      expect(s.feeling.length).toBeGreaterThan(10);
+      for (const key of ['hunger', 'head', 'stomach', 'energy', 'mind'] as const) {
+        expect(s.expect[key].length, `${s.id}.${key}`).toBeGreaterThan(20);
+      }
+    }
+  });
 });

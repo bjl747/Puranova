@@ -9,6 +9,7 @@ import { FastSetup } from './screens/FastSetup';
 import { ActiveFast } from './screens/ActiveFast';
 import { Refeed } from './screens/Refeed';
 import { History } from './screens/History';
+import { Journey } from './screens/Journey';
 import { Achievements } from './screens/Achievements';
 import { Profile } from './screens/Profile';
 import { Learn } from './screens/Learn';
@@ -70,6 +71,7 @@ function SignedInApp() {
           <Route path="/fast/new" element={<FastSetup />} />
           <Route path="/fast/:id" element={<ActiveFast />} />
           <Route path="/fast/:id/refeed" element={<Refeed />} />
+          <Route path="/journey" element={<Journey />} />
           <Route path="/history" element={<History />} />
           <Route path="/achievements" element={<Achievements />} />
           <Route path="/profile" element={<Profile />} />

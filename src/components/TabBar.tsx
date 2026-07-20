@@ -3,6 +3,7 @@ import './TabBar.css';
 
 const TABS = [
   { to: '/', label: 'Home', icon: HomeIcon, end: true },
+  { to: '/journey', label: 'Journey', icon: JourneyIcon },
   { to: '/history', label: 'History', icon: HistoryIcon },
   { to: '/achievements', label: 'Badges', icon: BadgeIcon },
   { to: '/learn', label: 'Learn', icon: LearnIcon },
@@ -34,6 +35,15 @@ function HomeIcon() {
     <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8">
       <circle cx="12" cy="12" r="8.5" />
       <circle cx="12" cy="12" r="3" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+function JourneyIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <circle cx="6" cy="5" r="2.4" />
+      <circle cx="18" cy="19" r="2.4" />
+      <path d="M8.2 6.4c3.5 1.8 2 4.8-.5 6.2-2.8 1.6-2.6 4.4.4 5.4l7.6 1" strokeLinecap="round" strokeDasharray="3 2.6" />
     </svg>
   );
 }

@@ -82,6 +82,15 @@ export interface CheckIn {
   skipped?: boolean;
 }
 
+/** What to expect in a stage, dimension by dimension (Journey explorer). */
+export interface StageExpectations {
+  hunger: string;
+  head: string; // head feel / headache risk
+  stomach: string; // stomach & bowels
+  energy: string;
+  mind: string; // clarity vs brain fog
+}
+
 /** A metabolic stage window, hour-anchored from fast start. */
 export interface Stage {
   id: string;
@@ -91,6 +100,7 @@ export interface Stage {
   tagline: string;
   body: string;
   feeling: string; // what the user commonly feels in this stage (for narration)
+  expect: StageExpectations;
   colorVar: string; // CSS var name, e.g. "--stage-ketosis"
   hex: string; // resolved hex for canvas use
 }
