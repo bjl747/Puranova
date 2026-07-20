@@ -233,6 +233,37 @@
 .chart-legend__swatch--proj {
   border-top: 2px dashed #3ff2e0;
 }
+.weight-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  margin-top: var(--sp-4);
+  padding-top: var(--sp-4);
+  border-top: 1px solid var(--border);
+}
+.weight-summary > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.weight-summary label {
+  font-size: 10px;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-weight: 700;
+}
+.weight-summary span {
+  font-size: 17px;
+  font-weight: 800;
+}
+.weight-summary__arrow {
+  color: var(--text-faint);
+  font-size: 16px;
+  align-self: flex-end;
+  padding-bottom: 2px;
+}
 .chart-legend__swatch--band {
   height: 10px;
   background: linear-gradient(

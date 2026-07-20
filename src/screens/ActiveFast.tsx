@@ -294,6 +294,45 @@ export function ActiveFast() {
           regimen. Early scale loss is mostly glycogen water that returns after
           refeeding — the violet “stays off” number is the true fat loss.
         </p>
+
+        {(() => {
+          const current = weighIns.length
+            ? weighIns[weighIns.length - 1].weightLbs
+            : fast.weightAtStart;
+          const change = current - fast.weightAtStart;
+          return (
+            <div className="weight-summary">
+              <div>
+                <label>Starting weight</label>
+                <span className="tnum">{fast.weightAtStart.toFixed(1)} lbs</span>
+              </div>
+              <div className="weight-summary__arrow" aria-hidden="true">
+                →
+              </div>
+              <div>
+                <label>Current weight</label>
+                <span className="tnum">{current.toFixed(1)} lbs</span>
+              </div>
+              <div>
+                <label>Change</label>
+                <span
+                  className="tnum"
+                  style={{
+                    color:
+                      change < 0
+                        ? 'var(--accent-bio)'
+                        : change > 0
+                          ? 'var(--warn)'
+                          : 'var(--text-dim)',
+                  }}
+                >
+                  {change > 0 ? '+' : ''}
+                  {change.toFixed(1)} lbs
+                </span>
+              </div>
+            </div>
+          );
+        })()}
       </Card>
 
       {showNotifPrompt && (
