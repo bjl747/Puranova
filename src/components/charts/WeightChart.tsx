@@ -4,10 +4,7 @@
 // Hand-rolled SVG to match the app's bioluminescent look.
 // ---------------------------------------------------------------------------
 
-import {
-  forwardCurve,
-  type ForwardProjection,
-} from '../../core/projection';
+import { projectionCurve } from '../../core/projection';
 import type { WeighIn } from '../../core/types';
 import { HOUR } from '../../core/time';
 
@@ -17,8 +14,6 @@ interface Props {
   durationHours: number;
   weighIns: WeighIn[]; // any set; the chart filters to the fast window
   nowMs: number;
-  /** Anchored personal forecast (from buildForwardProjection). */
-  forward: ForwardProjection;
 }
 
 const W = 340;
@@ -31,9 +26,10 @@ export function WeightChart({
   durationHours,
   weighIns,
   nowMs,
-  forward,
 }: Props) {
-  const curve = forwardCurve(startWeightLbs, forward, durationHours, 1);
+  // The target line is FIXED at fast start — a goal to race, not a forecast
+  // that chases the runner.
+  const curve = projectionCurve(startWeightLbs, durationHours, 1);
   const actual = weighIns
     .filter(
       (w) =>

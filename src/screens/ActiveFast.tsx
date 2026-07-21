@@ -17,10 +17,7 @@ import { useSpeech } from '../hooks/useSpeech';
 import { buildNarration } from '../core/narration';
 import { WeighInSheet } from '../components/WeighInSheet';
 import { WeightChart } from '../components/charts/WeightChart';
-import {
-  buildForwardProjection,
-  projectionBreakdown,
-} from '../core/projection';
+import { projectionBreakdown } from '../core/projection';
 import { fmtCountdown, fmtDuration, HOUR } from '../core/time';
 import type { ScheduleEvent, WeighIn } from '../core/types';
 import { useEffect } from 'react';
@@ -88,18 +85,21 @@ export function ActiveFast() {
   const mode = heroModeForStage(progress?.current.id);
   const color = progress?.current.hex ?? '#3ff2e0';
 
-  // Anchored personal forecast: banked loss from the latest weigh-in, with
-  // only the REMAINING hours projected at the recent pace. Can never predict
-  // less than what's already lost.
-  const forward = buildForwardProjection(
-    fast.weightAtStart,
-    weighIns
-      .filter((w) => w.fastId === fast.id || w.at >= fast.startAt)
-      .map((w) => ({
-        hours: (w.at - fast.startAt) / HOUR,
-        weightLbs: w.weightLbs,
-      })),
-  );
+  // Ahead/behind the fixed target: compare the latest weigh-in's actual loss
+  // to the target curve at that same hour. This is the number that moves with
+  // every weigh-in — the target itself never does.
+  const fastWeighIns = weighIns
+    .filter((w) => (w.fastId === fast.id || w.at >= fast.startAt) && w.at > fast.startAt + 1800_000)
+    .sort((a, b) => a.at - b.at);
+  const latestWI = fastWeighIns[fastWeighIns.length - 1];
+  const paceDelta = latestWI
+    ? fast.weightAtStart -
+      latestWI.weightLbs -
+      projectionBreakdown(
+        fast.weightAtStart,
+        (latestWI.at - fast.startAt) / HOUR,
+      ).totalLbs
+    : null;
 
   const toggleCheck = (e: ScheduleEvent) => {
     const done = Boolean(checkIns[e.id]?.completedAt);
@@ -258,7 +258,7 @@ export function ActiveFast() {
           </span>
           <span className="chart-legend__item">
             <i className="chart-legend__swatch chart-legend__swatch--proj" />
-            Projected
+            Target
           </span>
           <span className="chart-legend__item">
             <i className="chart-legend__swatch chart-legend__swatch--band" />
@@ -272,39 +272,44 @@ export function ActiveFast() {
           durationHours={durationHours}
           weighIns={weighIns}
           nowMs={now}
-          forward={forward}
         />
 
+        {paceDelta != null && Math.abs(paceDelta) >= 0.1 && (
+          <div
+            className={`pace-chip ${paceDelta > 0 ? 'pace-chip--ahead' : 'pace-chip--behind'}`}
+          >
+            {paceDelta > 0 ? '▲' : '▼'}{' '}
+            <span className="tnum">{Math.abs(paceDelta).toFixed(1)} lbs</span>{' '}
+            {paceDelta > 0 ? 'ahead of target' : 'behind target'}
+          </div>
+        )}
+
         {(() => {
-          const nowLoss = forward.lossAt(elapsedHours);
-          const endLoss = forward.lossAt(durationHours);
+          // Targets are FIXED from the start weight — the goal being raced.
+          const nowT = projectionBreakdown(fast.weightAtStart, elapsedHours);
+          const endT = projectionBreakdown(fast.weightAtStart, durationHours);
           const nextMark = Math.min(
             durationHours,
             (Math.floor(elapsedHours / 4) + 1) * 4,
           );
-          const nextLoss = forward.lossAt(nextMark);
-          // Fat share of the projected end total, at the personal pace.
-          const model = projectionBreakdown(fast.weightAtStart, durationHours);
-          const fatShare =
-            model.totalLbs > 0 ? model.keepsOffLbs / model.totalLbs : 0.3;
-          const staysOff = endLoss * fatShare;
+          const nextT = projectionBreakdown(fast.weightAtStart, nextMark);
           return (
             <div className="weight-stats">
               <div>
-                <span className="tnum">−{nowLoss.toFixed(1)}</span>
-                <label>projected now</label>
+                <span className="tnum">−{nowT.totalLbs.toFixed(1)}</span>
+                <label>target now</label>
               </div>
               <div>
-                <span className="tnum">−{nextLoss.toFixed(1)}</span>
+                <span className="tnum">−{nextT.totalLbs.toFixed(1)}</span>
                 <label>by hour {nextMark}</label>
               </div>
               <div>
-                <span className="tnum">−{endLoss.toFixed(1)}</span>
-                <label>by the end</label>
+                <span className="tnum">−{endT.totalLbs.toFixed(1)}</span>
+                <label>end target</label>
               </div>
               <div>
                 <span className="tnum" style={{ color: 'var(--accent-violet)' }}>
-                  −{staysOff.toFixed(1)}
+                  −{endT.keepsOffLbs.toFixed(1)}
                 </span>
                 <label>stays off (fat)</label>
               </div>
@@ -312,26 +317,8 @@ export function ActiveFast() {
           );
         })()}
         <p className="weight-footnote muted">
-          {forward.anchorLossLbs > 0 ? (
-            <>
-              <strong style={{ color: 'var(--accent-cyan)' }}>
-                Forecast anchored to your last weigh-in: −
-                {forward.anchorLossLbs.toFixed(1)} lbs is banked
-                {Math.abs(forward.k - 1) > 0.03 && (
-                  <>
-                    , and the hours ahead are projected at your recent pace (
-                    {forward.k > 1 ? '+' : '−'}
-                    {Math.abs((forward.k - 1) * 100).toFixed(0)}% vs. typical)
-                  </>
-                )}
-                .
-              </strong>{' '}
-              It can only improve from here — every weigh-in refines it.
-            </>
-          ) : (
-            <>The projection is research-based for your start weight on this
-            regimen and anchors to your weigh-ins as you log them.</>
-          )}{' '}
+          The dashed target is set once from your starting weight — it never
+          moves. Race it: each weigh-in updates whether you’re ahead or behind.
           Early scale loss is mostly glycogen water that returns after
           refeeding — the violet “stays off” number is the true fat loss.
         </p>
