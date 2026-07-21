@@ -65,6 +65,36 @@ describe('evaluate idempotence', () => {
   });
 });
 
+describe('live (mid-fast) unlocking', () => {
+  it('unlocks hour milestones the moment the active fast crosses them', () => {
+    const activeFast = fast(base, 72, { status: 'active', actualEndAt: undefined });
+    const q = qualifiedIds([activeFast], base + 25 * HOUR, 24.1);
+    expect(q.has('first-24h')).toBe(true);
+    expect(q.has('ketosis-reached')).toBe(true);
+    expect(q.has('autophagy-activated')).toBe(false); // not yet at 36h
+  });
+
+  it('does NOT unlock completion-type badges from a live fast', () => {
+    const activeFast = fast(base, 72, { status: 'active', actualEndAt: undefined });
+    const q = qualifiedIds([activeFast], base + 25 * HOUR, 24.1);
+    expect(q.has('first-fast')).toBe(false);
+    expect(q.has('triple')).toBe(false);
+  });
+
+  it('counts live hours toward the 100h century badge', () => {
+    const history = [fast(base, 72)]; // 72 completed hours
+    const q = qualifiedIds(history, base + 10 * DAY, 30); // + 30 live
+    expect(q.has('century')).toBe(true);
+  });
+
+  it('evaluate passes live hours through', () => {
+    const activeFast = fast(base, 72, { status: 'active', actualEndAt: undefined });
+    const newly = evaluate([activeFast], new Set(), base + 25 * HOUR, 24.1);
+    expect(newly).toContain('first-24h');
+    expect(newly).not.toContain('first-fast');
+  });
+});
+
 describe('ACHIEVEMENTS registry', () => {
   it('has unique ids', () => {
     const ids = ACHIEVEMENTS.map((a) => a.id);

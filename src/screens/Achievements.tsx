@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useRepo } from '../data/repo';
 import { ACHIEVEMENTS } from '../core/achievements';
+import { ACHIEVEMENTS_UPDATED_EVENT } from '../notify/AchievementHost';
 import type { UnlockedAchievement } from '../core/types';
 import './Achievements.css';
 
@@ -9,7 +10,11 @@ export function Achievements() {
   const [unlocked, setUnlocked] = useState<Record<string, UnlockedAchievement>>({});
 
   useEffect(() => {
-    repo.listAchievements().then(setUnlocked);
+    const load = () => repo.listAchievements().then(setUnlocked);
+    load();
+    // Refresh in place when the live watcher unlocks a badge mid-fast.
+    window.addEventListener(ACHIEVEMENTS_UPDATED_EVENT, load);
+    return () => window.removeEventListener(ACHIEVEMENTS_UPDATED_EVENT, load);
   }, [repo]);
 
   const count = Object.keys(unlocked).length;

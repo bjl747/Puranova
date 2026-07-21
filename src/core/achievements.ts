@@ -27,16 +27,29 @@ export function achievementById(id: string): Achievement | undefined {
   return BY_ID.get(id);
 }
 
-/** All achievement ids that the given history qualifies for. */
-export function qualifiedIds(fasts: Fast[], now: number): Set<string> {
+/**
+ * All achievement ids the given history qualifies for.
+ *
+ * `liveElapsedHours` is the elapsed time of a currently ACTIVE fast, so
+ * hour-milestone badges (24h, ketosis, 48h, …) unlock in real time the moment
+ * the line is crossed — not only after the fast completes. Completion-type
+ * badges (first-fast, counts, streaks, regenerator) still require finishing.
+ */
+export function qualifiedIds(
+  fasts: Fast[],
+  now: number,
+  liveElapsedHours = 0,
+): Set<string> {
   const done = completedFasts(fasts);
   const ids = new Set<string>();
-  if (done.length === 0) return ids;
 
-  const maxHours = Math.max(...done.map(fastedHours));
-  const total = totalHours(fasts);
+  const maxHours = Math.max(
+    done.length ? Math.max(...done.map(fastedHours)) : 0,
+    liveElapsedHours,
+  );
+  // Century counts every fasted hour, including the fast in progress.
+  const total = totalHours(fasts) + liveElapsedHours;
 
-  ids.add('first-fast');
   if (maxHours >= 24) {
     ids.add('first-24h');
     ids.add('ketosis-reached');
@@ -45,16 +58,18 @@ export function qualifiedIds(fasts: Fast[], now: number): Set<string> {
   if (maxHours >= 48) ids.add('48h-club');
   if (maxHours >= 56) ids.add('gh-peak');
   if (maxHours >= 72) ids.add('72h-club');
-
-  // Regenerator: a >=72h fast that also completed the refeed meal step.
-  if (done.some((f) => fastedHours(f) >= 72 && f.refeed?.mealAt != null)) {
-    ids.add('regenerator');
-  }
-
   if (total >= 100) ids.add('century');
-  if (done.length >= 3) ids.add('triple');
-  if (done.length >= 10) ids.add('ten-fasts');
-  if (currentStreakWeeks(fasts, now) >= 3) ids.add('streak-3');
+
+  if (done.length > 0) {
+    ids.add('first-fast');
+    if (done.length >= 3) ids.add('triple');
+    if (done.length >= 10) ids.add('ten-fasts');
+    if (currentStreakWeeks(fasts, now) >= 3) ids.add('streak-3');
+    // Regenerator: a >=72h fast that also completed the refeed meal step.
+    if (done.some((f) => fastedHours(f) >= 72 && f.refeed?.mealAt != null)) {
+      ids.add('regenerator');
+    }
+  }
 
   return ids;
 }
@@ -67,12 +82,13 @@ export function evaluate(
   fasts: Fast[],
   alreadyUnlocked: Set<string> | Record<string, unknown>,
   now: number,
+  liveElapsedHours = 0,
 ): string[] {
   const have =
     alreadyUnlocked instanceof Set
       ? alreadyUnlocked
       : new Set(Object.keys(alreadyUnlocked));
-  const qualified = qualifiedIds(fasts, now);
+  const qualified = qualifiedIds(fasts, now, liveElapsedHours);
   return ACHIEVEMENTS.filter((a) => qualified.has(a.id) && !have.has(a.id)).map(
     (a) => a.id,
   );

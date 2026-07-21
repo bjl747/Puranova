@@ -1,0 +1,53 @@
+.badge-toasts {
+  position: fixed;
+  top: calc(var(--safe-top) + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: min(92vw, 380px);
+  pointer-events: none;
+}
+.badge-toast {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: var(--r-md);
+  background: linear-gradient(
+    135deg,
+    rgba(77, 255, 158, 0.16),
+    rgba(63, 242, 224, 0.1)
+  );
+  border: 1px solid rgba(77, 255, 158, 0.45);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5), 0 0 24px rgba(77, 255, 158, 0.25);
+  animation: toastIn 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+@keyframes toastIn {
+  from {
+    transform: translateY(-16px) scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+.badge-toast__icon {
+  font-size: 28px;
+  filter: drop-shadow(0 0 8px rgba(77, 255, 158, 0.7));
+}
+.badge-toast strong {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent-bio);
+}
+.badge-toast__name {
+  font-size: 15px;
+  font-weight: 700;
+}

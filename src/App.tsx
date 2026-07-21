@@ -14,6 +14,7 @@ import { Achievements } from './screens/Achievements';
 import { Profile } from './screens/Profile';
 import { Learn } from './screens/Learn';
 import { NotificationHost } from './notify/NotificationHost';
+import { AchievementHost } from './notify/AchievementHost';
 import { Splash } from './components/Splash';
 
 export function App() {
@@ -65,6 +66,7 @@ function SignedInApp() {
   return (
     <div className="app-shell">
       <NotificationHost />
+      <AchievementHost />
       <main className="app-main">
         <Routes>
           <Route path="/" element={<Dashboard />} />
