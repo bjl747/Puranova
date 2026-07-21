@@ -49,6 +49,17 @@ export const LEARN_SECTIONS: LearnSection[] = [
     ],
   },
   {
+    id: 'projection',
+    icon: '📉',
+    title: 'How your weight projection works',
+    paragraphs: [
+      'Your projected loss is the sum of three separate processes, each modeled from fasting research. First, glycogen and its water: your liver and muscles store roughly 400–500 grams of carbohydrate, and every gram holds 3–4 grams of water with it. That whole pool — several pounds — drains quickly at first and is mostly gone by hour 24 to 36. Second, your digestive tract finishes clearing what was already in transit over the first day and a half. Third, fat: your body burns its daily energy from stored fat, at roughly 3,500 calories per pound.',
+      'Your daily burn is estimated from your weight using a power law, not a straight line — because a heavier body does not burn proportionally more. A simple "calories per pound" rule badly overestimates larger bodies; the curve Puranova uses is validated for higher body weights and gives a realistic figure.',
+      'This is also why the app shows two different numbers. The big projected loss is scale weight — real, but mostly glycogen water that returns after you refeed. The violet "stays off" number is the fat portion: the honest, keep-it-off figure. We show both because trust matters more than hype.',
+      'Once you start logging weigh-ins, the forecast becomes personal. Everything you have already lost is banked — the app never "projects" the past. Only the hours ahead are forecast, extended from your latest weigh-in at your recent pace (recent readings count most; an odd scale bounce fades from the math within hours). That is the same anchoring principle weather forecasters use, and it guarantees the projection can never show less than you have already achieved.',
+    ],
+  },
+  {
     id: 'stages',
     icon: '🔬',
     title: 'The stages of a 72-hour fast',
