@@ -16,6 +16,7 @@ import { Splash } from '../components/Splash';
 import { useSpeech } from '../hooks/useSpeech';
 import { buildNarration } from '../core/narration';
 import { WeighInSheet } from '../components/WeighInSheet';
+import { EditTimesSheet } from '../components/EditTimesSheet';
 import { WeightChart } from '../components/charts/WeightChart';
 import { projectionBreakdown } from '../core/projection';
 import { fmtCountdown, fmtDuration, HOUR } from '../core/time';
@@ -56,6 +57,7 @@ export function ActiveFast() {
   const [showAll, setShowAll] = useState(false);
   const [menu, setMenu] = useState(false);
   const [weighing, setWeighing] = useState(false);
+  const [editingTimes, setEditingTimes] = useState(false);
   const [weighIns, setWeighIns] = useState<WeighIn[]>([]);
 
   useEffect(() => {
@@ -159,12 +161,28 @@ export function ActiveFast() {
 
       {menu && (
         <Card className="active-menu">
+          <button
+            onClick={() => {
+              setMenu(false);
+              setEditingTimes(true);
+            }}
+          >
+            Edit start / end times
+          </button>
           <button onClick={endEarly}>End fast &amp; start refeed</button>
           <button className="danger" onClick={abandon}>
             Abandon fast
           </button>
           <button onClick={() => setMenu(false)}>Cancel</button>
         </Card>
+      )}
+
+      {editingTimes && (
+        <EditTimesSheet
+          fast={fast}
+          now={now}
+          onClose={() => setEditingTimes(false)}
+        />
       )}
 
       <div className="active-fast__ring glass-card">

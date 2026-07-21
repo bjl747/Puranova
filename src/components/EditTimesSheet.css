@@ -1,0 +1,31 @@
+.edit-times__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.edit-times__field > span {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+.edit-times__field .text-input {
+  color-scheme: dark;
+}
+.edit-times__presets {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.edit-times__summary {
+  font-size: 14px;
+  color: var(--text-dim);
+}
+.edit-times__summary strong {
+  color: var(--accent-cyan);
+  font-size: 16px;
+}
+.edit-times__warn {
+  font-size: 13px;
+  color: var(--warn);
+  line-height: 1.5;
+}
