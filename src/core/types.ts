@@ -129,11 +129,37 @@ export interface WeighIn {
   fastId?: string; // set when logged during an active fast
 }
 
+export type AchievementKind =
+  | 'hour' // reach N elapsed hours in a single fast
+  | 'count' // complete N fasts
+  | 'cumulative' // accumulate N total fasted hours
+  | 'streak' // fast in N consecutive weeks
+  | 'special'; // bespoke condition (e.g. regenerator)
+
 export interface Achievement {
   id: string;
   name: string;
   description: string;
   icon: string; // emoji or short glyph
+  kind: AchievementKind;
+  /** Threshold in the kind's unit (hours, fasts, hours, weeks). */
+  threshold: number;
+  /** The full story: what this milestone means and why it matters. */
+  explanation: string;
+}
+
+/** One qualifying occurrence of a milestone in the user's history. */
+export interface MilestoneHit {
+  fastId: string;
+  at: number; // when the qualifying fast started
+  hours: number; // its fasted duration (elapsed-so-far if in progress)
+  inProgress: boolean;
+}
+
+export interface AchievementProgress {
+  current: number;
+  target: number;
+  unit: string; // 'h' | 'fasts' | 'weeks'
 }
 
 export interface UnlockedAchievement {

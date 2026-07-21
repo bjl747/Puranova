@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { evaluate, qualifiedIds, ACHIEVEMENTS } from './achievements';
+import {
+  evaluate,
+  qualifiedIds,
+  ACHIEVEMENTS,
+  achievementById,
+  achievementHistory,
+} from './achievements';
 import type { Fast } from './types';
 
 const HOUR = 3600_000;
@@ -99,5 +105,46 @@ describe('ACHIEVEMENTS registry', () => {
   it('has unique ids', () => {
     const ids = ACHIEVEMENTS.map((a) => a.id);
     expect(new Set(ids).size).toBe(ids.length);
+  });
+  it('every badge has a kind, threshold, and substantial explanation', () => {
+    for (const a of ACHIEVEMENTS) {
+      expect(a.kind).toBeTruthy();
+      expect(a.threshold).toBeGreaterThan(0);
+      expect(a.explanation.length, a.id).toBeGreaterThan(80);
+    }
+  });
+});
+
+describe('achievementHistory', () => {
+  const h24 = achievementById('first-24h')!;
+  const cent = achievementById('century')!;
+  const triple = achievementById('triple')!;
+
+  it('lists each qualifying fast for hour badges, newest first', () => {
+    const fasts = [fast(base, 72), fast(base + 7 * DAY, 12), fast(base + 14 * DAY, 30)];
+    const { hits, progress } = achievementHistory(h24, fasts, base + 15 * DAY);
+    expect(hits).toHaveLength(2); // 72h and 30h qualify; 12h does not
+    expect(hits[0].at).toBeGreaterThan(hits[1].at); // newest first
+    expect(progress).toEqual({ current: 24, target: 24, unit: 'h' });
+  });
+
+  it('includes the active fast as an in-progress hit once crossed', () => {
+    const active = fast(base, 72, { status: 'active', actualEndAt: undefined });
+    const { hits } = achievementHistory(h24, [active], base + 25 * HOUR, 25);
+    expect(hits).toHaveLength(1);
+    expect(hits[0].inProgress).toBe(true);
+  });
+
+  it('tracks cumulative progress toward century including live hours', () => {
+    const fasts = [fast(base, 72)];
+    const { progress } = achievementHistory(cent, fasts, base + 5 * DAY, 20);
+    expect(progress.current).toBeCloseTo(92);
+    expect(progress.target).toBe(100);
+  });
+
+  it('reports count progress for count badges', () => {
+    const fasts = [fast(base, 24), fast(base + DAY, 24)];
+    const { progress } = achievementHistory(triple, fasts, base + 2 * DAY);
+    expect(progress).toEqual({ current: 2, target: 3, unit: 'fasts' });
   });
 });

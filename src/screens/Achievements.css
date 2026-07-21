@@ -16,6 +16,12 @@
   opacity: 0.5;
   filter: grayscale(0.7);
   transition: all 0.25s ease;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+}
+.badge:active {
+  transform: scale(0.97);
 }
 .badge--on {
   opacity: 1;
