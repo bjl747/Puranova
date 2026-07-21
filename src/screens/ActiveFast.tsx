@@ -18,8 +18,8 @@ import { buildNarration } from '../core/narration';
 import { WeighInSheet } from '../components/WeighInSheet';
 import { WeightChart } from '../components/charts/WeightChart';
 import {
-  calibrationFactor,
-  calibratedBreakdown,
+  buildForwardProjection,
+  projectionBreakdown,
 } from '../core/projection';
 import { fmtCountdown, fmtDuration, HOUR } from '../core/time';
 import type { ScheduleEvent, WeighIn } from '../core/types';
@@ -88,8 +88,10 @@ export function ActiveFast() {
   const mode = heroModeForStage(progress?.current.id);
   const color = progress?.current.hex ?? '#3ff2e0';
 
-  // Personal projection calibration from this fast's actual weigh-ins.
-  const calibration = calibrationFactor(
+  // Anchored personal forecast: banked loss from the latest weigh-in, with
+  // only the REMAINING hours projected at the recent pace. Can never predict
+  // less than what's already lost.
+  const forward = buildForwardProjection(
     fast.weightAtStart,
     weighIns
       .filter((w) => w.fastId === fast.id || w.at >= fast.startAt)
@@ -270,46 +272,39 @@ export function ActiveFast() {
           durationHours={durationHours}
           weighIns={weighIns}
           nowMs={now}
-          calibration={calibration}
+          forward={forward}
         />
 
         {(() => {
-          const nowProj = calibratedBreakdown(
-            fast.weightAtStart,
-            elapsedHours,
-            calibration,
-          );
-          const endProj = calibratedBreakdown(
-            fast.weightAtStart,
-            durationHours,
-            calibration,
-          );
+          const nowLoss = forward.lossAt(elapsedHours);
+          const endLoss = forward.lossAt(durationHours);
           const nextMark = Math.min(
             durationHours,
             (Math.floor(elapsedHours / 4) + 1) * 4,
           );
-          const next = calibratedBreakdown(
-            fast.weightAtStart,
-            nextMark,
-            calibration,
-          );
+          const nextLoss = forward.lossAt(nextMark);
+          // Fat share of the projected end total, at the personal pace.
+          const model = projectionBreakdown(fast.weightAtStart, durationHours);
+          const fatShare =
+            model.totalLbs > 0 ? model.keepsOffLbs / model.totalLbs : 0.3;
+          const staysOff = endLoss * fatShare;
           return (
             <div className="weight-stats">
               <div>
-                <span className="tnum">−{nowProj.totalLbs.toFixed(1)}</span>
+                <span className="tnum">−{nowLoss.toFixed(1)}</span>
                 <label>projected now</label>
               </div>
               <div>
-                <span className="tnum">−{next.totalLbs.toFixed(1)}</span>
+                <span className="tnum">−{nextLoss.toFixed(1)}</span>
                 <label>by hour {nextMark}</label>
               </div>
               <div>
-                <span className="tnum">−{endProj.totalLbs.toFixed(1)}</span>
+                <span className="tnum">−{endLoss.toFixed(1)}</span>
                 <label>by the end</label>
               </div>
               <div>
                 <span className="tnum" style={{ color: 'var(--accent-violet)' }}>
-                  −{endProj.keepsOffLbs.toFixed(1)}
+                  −{staysOff.toFixed(1)}
                 </span>
                 <label>stays off (fat)</label>
               </div>
@@ -317,18 +312,25 @@ export function ActiveFast() {
           );
         })()}
         <p className="weight-footnote muted">
-          {Math.abs(calibration - 1) > 0.03 ? (
+          {forward.anchorLossLbs > 0 ? (
             <>
               <strong style={{ color: 'var(--accent-cyan)' }}>
-                Projection recalibrated to your weigh-ins (
-                {calibration > 1 ? '+' : '−'}
-                {Math.abs((calibration - 1) * 100).toFixed(0)}% vs. typical).
+                Forecast anchored to your last weigh-in: −
+                {forward.anchorLossLbs.toFixed(1)} lbs is banked
+                {Math.abs(forward.k - 1) > 0.03 && (
+                  <>
+                    , and the hours ahead are projected at your recent pace (
+                    {forward.k > 1 ? '+' : '−'}
+                    {Math.abs((forward.k - 1) * 100).toFixed(0)}% vs. typical)
+                  </>
+                )}
+                .
               </strong>{' '}
-              Every number here updates as you log the scale.
+              It can only improve from here — every weigh-in refines it.
             </>
           ) : (
             <>The projection is research-based for your start weight on this
-            regimen and recalibrates as you log weigh-ins.</>
+            regimen and anchors to your weigh-ins as you log them.</>
           )}{' '}
           Early scale loss is mostly glycogen water that returns after
           refeeding — the violet “stays off” number is the true fat loss.

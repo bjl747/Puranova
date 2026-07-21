@@ -7,6 +7,9 @@ import {
   calibrationFactor,
   calibratedBreakdown,
   calibratedCurve,
+  recentCalibrationFactor,
+  buildForwardProjection,
+  forwardCurve,
 } from './projection';
 
 describe('projectionBreakdown', () => {
@@ -139,6 +142,63 @@ describe('calibratedBreakdown / calibratedCurve', () => {
     const a = projectionCurve(430, 72, 8);
     const b = calibratedCurve(430, 72, 1, 8);
     a.forEach((p, i) => expect(b[i].expected).toBeCloseTo(p.expected));
+  });
+});
+
+describe('anchored forward projection (the "worse than reality" fix)', () => {
+  // The user's real regression case: early slow/bouncy readings, then a
+  // strong drop to -8.8 by hour 28. The old whole-history fit projected an
+  // END loss (7.3) smaller than the already-banked loss (8.8).
+  const S = 440.4;
+  const samples = [
+    { hours: 4, weightLbs: 440.4 },
+    { hours: 12, weightLbs: 437.2 },
+    { hours: 21, weightLbs: 439 }, // evening/clothed bounce upward
+    { hours: 22, weightLbs: 436 },
+    { hours: 23, weightLbs: 435.4 },
+    { hours: 25, weightLbs: 434.2 },
+    { hours: 28, weightLbs: 431.6 }, // -8.8 banked
+  ];
+
+  it('NEVER projects an end total below the already-banked loss', () => {
+    const fp = buildForwardProjection(S, samples);
+    expect(fp.anchorLossLbs).toBeCloseTo(8.8, 1);
+    expect(fp.lossAt(72)).toBeGreaterThan(8.8);
+    // monotone non-decreasing across the whole fast
+    let prev = -1;
+    for (let h = 0; h <= 72; h += 2) {
+      const v = fp.lossAt(h);
+      expect(v).toBeGreaterThanOrEqual(prev - 1e-9);
+      prev = v;
+    }
+  });
+
+  it('passes exactly through the latest weigh-in', () => {
+    const fp = buildForwardProjection(S, samples);
+    expect(fp.lossAt(fp.anchorHours)).toBeCloseTo(fp.anchorLossLbs, 6);
+  });
+
+  it('recency weighting rates this user faster than the whole-history fit', () => {
+    const kOld = calibrationFactor(S, samples);
+    const kNew = recentCalibrationFactor(S, samples);
+    expect(kNew).toBeGreaterThan(kOld); // recent -8.8 pace dominates
+  });
+
+  it('with no weigh-ins, reduces to the population model', () => {
+    const fp = buildForwardProjection(430, []);
+    expect(fp.k).toBe(1);
+    expect(fp.anchorLossLbs).toBe(0);
+    expect(fp.lossAt(72)).toBeCloseTo(projectionBreakdown(430, 72).totalLbs);
+  });
+
+  it('forecast cone has zero width at the anchor and fans out after', () => {
+    const fp = buildForwardProjection(S, samples);
+    const curve = forwardCurve(S, fp, 72, 1);
+    const atAnchor = curve.find((p) => Math.abs(p.hours - 28) < 0.6)!;
+    expect(atAnchor.high - atAnchor.low).toBeLessThan(0.2);
+    const end = curve[curve.length - 1];
+    expect(end.high - end.low).toBeGreaterThan(0.3);
+    expect(end.low).toBeGreaterThanOrEqual(fp.anchorLossLbs - 1e-9);
   });
 });
 
