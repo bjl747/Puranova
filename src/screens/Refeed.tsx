@@ -84,6 +84,9 @@ export function Refeed() {
     );
   }
 
+  const lockStep = steps[1];
+  const lockRunning = lockStep.available && (lockStep.lockRemainingMs ?? 0) > 0;
+
   return (
     <div className="refeed fade-up">
       <header>
@@ -93,6 +96,24 @@ export function Refeed() {
           How you refeed matters as much as the fast. Follow each step.
         </p>
       </header>
+
+      {lockRunning && (
+        <div className="refeed__hero glass-card">
+          <CountdownRing
+            progress={1 - (lockStep.lockRemainingMs ?? 0) / (45 * 60_000)}
+            size={250}
+            color="#ffb547"
+          >
+            <div className="ring-label muted">digestion window</div>
+            <div className="ring-time tnum">
+              {fmtCountdown(lockStep.lockRemainingMs ?? 0)}
+            </div>
+            <div className="muted" style={{ fontSize: 12 }}>
+              until your solid meal
+            </div>
+          </CountdownRing>
+        </div>
+      )}
 
       <div className="refeed__steps">
         {steps.map((s) => (
@@ -108,22 +129,8 @@ export function Refeed() {
               <p className="muted">{s.body}</p>
 
               {s.id === 'lock' && s.available && (
-                <div className="refeed-lock">
-                  <CountdownRing
-                    progress={
-                      1 - (s.lockRemainingMs ?? 0) / (45 * 60_000)
-                    }
-                    size={140}
-                    stroke={9}
-                    color="#ffb547"
-                  >
-                    <div className="tnum refeed-lock__time">
-                      {fmtCountdown(s.lockRemainingMs ?? 0)}
-                    </div>
-                    <div className="muted" style={{ fontSize: 11 }}>
-                      until solid food
-                    </div>
-                  </CountdownRing>
+                <div className="refeed-lock__inline muted tnum">
+                  ⏳ {fmtCountdown(s.lockRemainingMs ?? 0)} remaining
                 </div>
               )}
 

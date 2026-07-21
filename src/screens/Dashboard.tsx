@@ -28,6 +28,66 @@ export function Dashboard() {
   const stats = computeStats(fasts, now);
   const firstName = (profile?.displayName ?? 'Explorer').split(' ')[0];
 
+  // Refeed takes over as the main timer once it begins.
+  if (fast && fast.status === 'refeed') {
+    const lockEndsAt = fast.refeed?.lockEndsAt;
+    const lockActive = Boolean(
+      fast.refeed?.brothAt && lockEndsAt && now < lockEndsAt,
+    );
+    const lockRemaining = lockActive ? (lockEndsAt as number) - now : 0;
+    const brothPending = !fast.refeed?.brothAt;
+    return (
+      <div className="dashboard fade-up">
+        <header className="dashboard__greeting">
+          <div className="eyebrow" style={{ color: 'var(--accent-amber)' }}>
+            Refeed in progress
+          </div>
+          <h1>Hey, {firstName}</h1>
+        </header>
+
+        <Card
+          className="active-card"
+          onClick={() => navigate(`/fast/${fast.id}/refeed`)}
+        >
+          <div className="active-card__hero">
+            <CellularHero mode="regen" hex="#ffb547" />
+          </div>
+          <div className="active-card__ring">
+            <CountdownRing
+              progress={lockActive ? 1 - lockRemaining / (45 * 60_000) : brothPending ? 0 : 1}
+              size={220}
+              color="#ffb547"
+            >
+              {lockActive ? (
+                <>
+                  <div className="ring-label muted">digestion window</div>
+                  <div className="ring-time tnum">{fmtCountdown(lockRemaining)}</div>
+                  <Pill color="#ffb547">until solid food</Pill>
+                </>
+              ) : brothPending ? (
+                <>
+                  <div className="ring-label muted">step 1</div>
+                  <div className="ring-time" style={{ fontSize: 24 }}>🍳</div>
+                  <Pill color="#ffb547">Break your fast gently</Pill>
+                </>
+              ) : (
+                <>
+                  <div className="ring-label muted">unlocked</div>
+                  <div className="ring-time" style={{ fontSize: 24 }}>🍽️</div>
+                  <Pill color="#4dff9e">Time for your solid meal</Pill>
+                </>
+              )}
+            </CountdownRing>
+          </div>
+        </Card>
+
+        <Button full glow onClick={() => navigate(`/fast/${fast.id}/refeed`)}>
+          Open refeed protocol
+        </Button>
+      </div>
+    );
+  }
+
   if (fast) {
     const mode = heroModeForStage(progress?.current.id);
     const color = progress?.current.hex ?? '#3ff2e0';

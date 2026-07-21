@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { useActiveFast } from '../hooks/useActiveFast';
 import { useProfile } from '../hooks/useProfile';
 import { useNow } from '../hooks/useNow';
@@ -82,8 +82,13 @@ export function ActiveFast() {
     return <Splash label="Loading your fast…" />;
   }
 
+  // Once refeeding begins, the refeed flow takes over as the main experience.
+  if (fast.status === 'refeed') {
+    return <Navigate to={`/fast/${fast.id}/refeed`} replace />;
+  }
+
   const durationHours = (fast.plannedEndAt - fast.startAt) / HOUR;
-  const finished = now >= fast.plannedEndAt || fast.status === 'refeed';
+  const finished = now >= fast.plannedEndAt;
   const mode = heroModeForStage(progress?.current.id);
   const color = progress?.current.hex ?? '#3ff2e0';
 
