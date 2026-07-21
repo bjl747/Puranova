@@ -4,7 +4,7 @@
 // Hand-rolled SVG to match the app's bioluminescent look.
 // ---------------------------------------------------------------------------
 
-import { projectionCurve } from '../../core/projection';
+import { calibratedCurve } from '../../core/projection';
 import type { WeighIn } from '../../core/types';
 import { HOUR } from '../../core/time';
 
@@ -14,6 +14,8 @@ interface Props {
   durationHours: number;
   weighIns: WeighIn[]; // any set; the chart filters to the fast window
   nowMs: number;
+  /** Personal calibration factor from actual weigh-ins (1 = population model). */
+  calibration?: number;
 }
 
 const W = 340;
@@ -26,8 +28,9 @@ export function WeightChart({
   durationHours,
   weighIns,
   nowMs,
+  calibration = 1,
 }: Props) {
-  const curve = projectionCurve(startWeightLbs, durationHours, 1);
+  const curve = calibratedCurve(startWeightLbs, durationHours, calibration, 1);
   const actual = weighIns
     .filter(
       (w) =>

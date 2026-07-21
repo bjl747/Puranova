@@ -133,3 +133,81 @@ export function projectionMarkers(
   }
   return out;
 }
+
+// ---------------------------------------------------------------------------
+// Calibration: adapt the population model to THIS person's actual weigh-ins.
+// ---------------------------------------------------------------------------
+
+export interface WeighInSample {
+  hours: number; // elapsed hours into the fast when weighed
+  weightLbs: number;
+}
+
+/**
+ * Personal calibration factor k fitted from actual weigh-ins: a
+ * least-squares-through-origin fit of actual loss against modeled loss,
+ *   k = Σ(actual·expected) / Σ(expected²).
+ * Early readings self-weight lightly (expected loss is small then), so one
+ * noisy hour-2 weigh-in can't distort the fit. Clamped to a physiological
+ * range. Returns 1 when there's no usable data.
+ */
+export function calibrationFactor(
+  startLbs: number,
+  samples: WeighInSample[],
+): number {
+  let num = 0;
+  let den = 0;
+  for (const s of samples) {
+    if (s.hours <= 0.5) continue; // start-of-fast anchor carries no signal
+    const expected = projectionBreakdown(startLbs, s.hours).totalLbs;
+    const actual = startLbs - s.weightLbs;
+    if (expected <= 0.1) continue;
+    num += actual * expected;
+    den += expected * expected;
+  }
+  if (den === 0) return 1;
+  const k = num / den;
+  return Math.min(1.6, Math.max(0.6, k));
+}
+
+/** Breakdown with the personal calibration applied to every component. */
+export function calibratedBreakdown(
+  startLbs: number,
+  hours: number,
+  k: number,
+): ProjectionBreakdown {
+  const b = projectionBreakdown(startLbs, hours);
+  return {
+    ...b,
+    waterGlycogenLbs: b.waterGlycogenLbs * k,
+    gutClearanceLbs: b.gutClearanceLbs * k,
+    fatLbs: b.fatLbs * k,
+    totalLbs: b.totalLbs * k,
+    keepsOffLbs: b.keepsOffLbs * k,
+  };
+}
+
+/**
+ * Projection curve scaled by the personal calibration factor. Once real data
+ * is in (k ≠ 1), the uncertainty band tightens: measured beats assumed.
+ */
+export function calibratedCurve(
+  startLbs: number,
+  durationHours: number,
+  k: number,
+  stepHours = 1,
+): ProjectionPoint[] {
+  const calibrated = k !== 1;
+  const lowF = calibrated ? 0.88 : 0.78;
+  const highF = calibrated ? 1.1 : 1.18;
+  return projectionCurve(startLbs, durationHours, stepHours).map((p) => {
+    const expected = p.expected * k;
+    return {
+      hours: p.hours,
+      expected,
+      low: expected * lowF,
+      high: expected * highF,
+      weight: startLbs - expected,
+    };
+  });
+}

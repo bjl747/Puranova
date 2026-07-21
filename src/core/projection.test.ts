@@ -4,6 +4,9 @@ import {
   projectionCurve,
   projectionMarkers,
   estimatedDailyKcal,
+  calibrationFactor,
+  calibratedBreakdown,
+  calibratedCurve,
 } from './projection';
 
 describe('projectionBreakdown', () => {
@@ -68,6 +71,74 @@ describe('projectionCurve', () => {
       expect(p.high).toBeGreaterThan(p.expected);
       expect(p.weight).toBeCloseTo(430 - p.expected);
     }
+  });
+});
+
+describe('calibrationFactor', () => {
+  it('is 1 with no usable weigh-ins', () => {
+    expect(calibrationFactor(430, [])).toBe(1);
+    // start-of-fast anchor only → no signal
+    expect(calibrationFactor(430, [{ hours: 0, weightLbs: 430 }])).toBe(1);
+  });
+
+  it('recovers the true factor when losses run ahead of the model', () => {
+    // Fabricate weigh-ins that lose exactly 1.3x the modeled amount.
+    const samples = [16, 24, 32].map((h) => ({
+      hours: h,
+      weightLbs: 430 - projectionBreakdown(430, h).totalLbs * 1.3,
+    }));
+    expect(calibrationFactor(430, samples)).toBeCloseTo(1.3, 2);
+  });
+
+  it('recovers a slower-than-model factor too', () => {
+    const samples = [20, 30].map((h) => ({
+      hours: h,
+      weightLbs: 430 - projectionBreakdown(430, h).totalLbs * 0.8,
+    }));
+    expect(calibrationFactor(430, samples)).toBeCloseTo(0.8, 2);
+  });
+
+  it('clamps runaway factors to a physiological range', () => {
+    const wild = [{ hours: 24, weightLbs: 380 }]; // -50 lbs in a day
+    expect(calibrationFactor(430, wild)).toBe(1.6);
+    const reverse = [{ hours: 24, weightLbs: 435 }]; // gained
+    expect(calibrationFactor(430, reverse)).toBe(0.6);
+  });
+
+  it('down-weights early noisy readings automatically', () => {
+    // A crazy hour-1 reading plus two sane later ones → still near 1.
+    const samples = [
+      { hours: 1, weightLbs: 426 }, // -4 lbs in an hour (scale noise)
+      { hours: 24, weightLbs: 430 - projectionBreakdown(430, 24).totalLbs },
+      { hours: 32, weightLbs: 430 - projectionBreakdown(430, 32).totalLbs },
+    ];
+    expect(calibrationFactor(430, samples)).toBeLessThan(1.15);
+  });
+});
+
+describe('calibratedBreakdown / calibratedCurve', () => {
+  it('scales every component and total by k', () => {
+    const base = projectionBreakdown(430, 48);
+    const cal = calibratedBreakdown(430, 48, 1.3);
+    expect(cal.totalLbs).toBeCloseTo(base.totalLbs * 1.3);
+    expect(cal.keepsOffLbs).toBeCloseTo(base.keepsOffLbs * 1.3);
+    expect(
+      cal.waterGlycogenLbs + cal.gutClearanceLbs + cal.fatLbs,
+    ).toBeCloseTo(cal.totalLbs);
+  });
+
+  it('tightens the band once calibrated', () => {
+    const un = projectionCurve(430, 72, 4).at(-1)!;
+    const cal = calibratedCurve(430, 72, 1.3, 4).at(-1)!;
+    const unSpread = (un.high - un.low) / un.expected;
+    const calSpread = (cal.high - cal.low) / cal.expected;
+    expect(calSpread).toBeLessThan(unSpread);
+  });
+
+  it('k=1 leaves the expected line unchanged', () => {
+    const a = projectionCurve(430, 72, 8);
+    const b = calibratedCurve(430, 72, 1, 8);
+    a.forEach((p, i) => expect(b[i].expected).toBeCloseTo(p.expected));
   });
 });
 

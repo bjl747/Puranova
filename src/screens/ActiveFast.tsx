@@ -17,7 +17,10 @@ import { useSpeech } from '../hooks/useSpeech';
 import { buildNarration } from '../core/narration';
 import { WeighInSheet } from '../components/WeighInSheet';
 import { WeightChart } from '../components/charts/WeightChart';
-import { projectionBreakdown } from '../core/projection';
+import {
+  calibrationFactor,
+  calibratedBreakdown,
+} from '../core/projection';
 import { fmtCountdown, fmtDuration, HOUR } from '../core/time';
 import type { ScheduleEvent, WeighIn } from '../core/types';
 import { useEffect } from 'react';
@@ -84,6 +87,17 @@ export function ActiveFast() {
   const finished = now >= fast.plannedEndAt || fast.status === 'refeed';
   const mode = heroModeForStage(progress?.current.id);
   const color = progress?.current.hex ?? '#3ff2e0';
+
+  // Personal projection calibration from this fast's actual weigh-ins.
+  const calibration = calibrationFactor(
+    fast.weightAtStart,
+    weighIns
+      .filter((w) => w.fastId === fast.id || w.at >= fast.startAt)
+      .map((w) => ({
+        hours: (w.at - fast.startAt) / HOUR,
+        weightLbs: w.weightLbs,
+      })),
+  );
 
   const toggleCheck = (e: ScheduleEvent) => {
     const done = Boolean(checkIns[e.id]?.completedAt);
@@ -256,16 +270,29 @@ export function ActiveFast() {
           durationHours={durationHours}
           weighIns={weighIns}
           nowMs={now}
+          calibration={calibration}
         />
 
         {(() => {
-          const nowProj = projectionBreakdown(fast.weightAtStart, elapsedHours);
-          const endProj = projectionBreakdown(fast.weightAtStart, durationHours);
+          const nowProj = calibratedBreakdown(
+            fast.weightAtStart,
+            elapsedHours,
+            calibration,
+          );
+          const endProj = calibratedBreakdown(
+            fast.weightAtStart,
+            durationHours,
+            calibration,
+          );
           const nextMark = Math.min(
             durationHours,
             (Math.floor(elapsedHours / 4) + 1) * 4,
           );
-          const next = projectionBreakdown(fast.weightAtStart, nextMark);
+          const next = calibratedBreakdown(
+            fast.weightAtStart,
+            nextMark,
+            calibration,
+          );
           return (
             <div className="weight-stats">
               <div>
@@ -290,8 +317,20 @@ export function ActiveFast() {
           );
         })()}
         <p className="weight-footnote muted">
-          The projection is research-based for your start weight on this
-          regimen. Early scale loss is mostly glycogen water that returns after
+          {Math.abs(calibration - 1) > 0.03 ? (
+            <>
+              <strong style={{ color: 'var(--accent-cyan)' }}>
+                Projection recalibrated to your weigh-ins (
+                {calibration > 1 ? '+' : '−'}
+                {Math.abs((calibration - 1) * 100).toFixed(0)}% vs. typical).
+              </strong>{' '}
+              Every number here updates as you log the scale.
+            </>
+          ) : (
+            <>The projection is research-based for your start weight on this
+            regimen and recalibrates as you log weigh-ins.</>
+          )}{' '}
+          Early scale loss is mostly glycogen water that returns after
           refeeding — the violet “stays off” number is the true fat loss.
         </p>
 
